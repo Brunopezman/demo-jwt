@@ -45,6 +45,14 @@ El token JWT debe enviarse en cada request protegido:
 
 Authorization: Bearer <token>
 
+## 🧪 Testing
+
+Los endpoints pueden probarse con:
+
+- Postman
+- Insomnia
+- Curl
+
 ## 📚 Créditos
 
 Este proyecto se basa en el tutorial de Irina Rojas:
