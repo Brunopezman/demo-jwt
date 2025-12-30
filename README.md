@@ -45,6 +45,16 @@ El token JWT debe enviarse en cada request protegido:
 
 Authorization: Bearer <token>
 
+## ▶️ Cómo ejecutar el proyecto
+
+Clonar el repositorio `git clone https://github.com/tu-usuario/demo-jwt.git`
+- Configurar la base de datos
+- Ajustar application.properties
+- Ejecutar:
+```bash
+mvn spring-boot:run
+```
+
 ## 🧪 Testing
 
 Los endpoints pueden probarse con:
