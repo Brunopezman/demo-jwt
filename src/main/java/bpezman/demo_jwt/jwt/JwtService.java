@@ -1,41 +1,47 @@
 package bpezman.demo_jwt.jwt;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import bpezman.demo_jwt.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "56377397635266556A586E32723575482B4D6251655468576D"; 
+    @Value("${jwt.secret}")
+    private String SECRET_KEY; 
 
-    public String getToken(UserDetails user) {
+    public String getToken(User user) {
         return getToken(new HashMap<>(), user);
     }
 
-    private String getToken(Map<String,Object> extraClaims, UserDetails user) {
+    private String getToken(Map<String,Object> extraClaims, User user) {
         return Jwts
             .builder()
-            .setClaims(extraClaims)
-            .setSubject(user.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-            .signWith(getKey(), SignatureAlgorithm.HS256)
+            .claims(extraClaims)
+            .claim("userid", user.getId())
+            .claim("firstname", user.getFirstname())
+            .claim("lastname", user.getLastname())
+            .subject(user.getUsername())
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+            .signWith(getKey())
             .compact();
     }
 
-    private Key getKey() {
+    private SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -51,11 +57,11 @@ public class JwtService {
 
     private Claims getAllClaims(String token) {
         return Jwts
-            .parserBuilder()
-            .setSigningKey(getKey())
+            .parser()
+            .verifyWith(getKey())
             .build()
-            .parseClaimsJws(token)
-            .getBody();
+            .parseSignedClaims(token)
+            .getPayload();
     }
 
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
